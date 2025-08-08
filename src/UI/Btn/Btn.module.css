@@ -1,0 +1,34 @@
+.btn {
+  display: flex;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.25s;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.btn.primary {
+  background-color: var(--colorDarkGray);
+}
+
+.btn.smallPrimary {
+  background-color: var(--colorDarkGray);
+  padding: 4px;
+}
+
+.btn.primary:hover {
+   background-color: var(--colorGray);
+}
+
+.btn:focus,
+.btn:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn[disabled] {
+  cursor: not-allowed;
+}

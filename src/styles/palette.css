@@ -1,0 +1,8 @@
+:root {
+    --colorBaseWhite: #fff;
+    --colorBaseBlack: #222;
+    --colorDarkGray: #424040;
+    --colorGray: #818181;
+    --colorBlue: #0000ff;
+    --colorBlack10: rgba(0, 0, 0, 0.1);
+}
