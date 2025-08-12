@@ -1,5 +1,7 @@
 export interface ICommentStore {
-    comments: IComment[],
+    comments: {
+        [id: string]: IComment[]
+    },
     repliedCommentId: string | repliedCommentIdentifiers | null,
     repliedCommentData?: RepliedCommentData | null
 }
@@ -15,7 +17,9 @@ export type repliedCommentIdentifiers = {
 export interface IComment {
     id: string,
     author: string,
-    body: string
+    authorId: string,
+    body: string,
+    repliedCommentData?: IComment[]
 }
 
 
@@ -31,21 +35,21 @@ export const commentsActions = {
 export type CommentsActions = keyof typeof commentsActions;
 
 export type CommentsActionsType = 
-{ type: typeof commentsActions.add, payload: IComment} |
-{ type: typeof commentsActions.remove, payload: string} |
+{ type: typeof commentsActions.add, payload: {comment: IComment, taskId: string}} |
+{ type: typeof commentsActions.remove, payload: {id: string, taskId: string}} |
 { type: typeof commentsActions.addRepliedCommentId, payload: string | repliedCommentIdentifiers} |
-{ type: typeof commentsActions.addRepliedCommentData, payload: IComment} |
+{ type: typeof commentsActions.addRepliedCommentData, payload: { taskId: string; comment: IComment } } |
 { type: typeof commentsActions.removeRepliedCommentId } |
-{ type: typeof commentsActions.removeRepliedComment, payload: { replyId: string; originalId: string } }
+{ type: typeof commentsActions.removeRepliedComment, payload: { taskId: string; originalId: string; replyId: string }  }
 
 export type CommentsContextValue = {
     store: ICommentStore | null,
     actions: {
-        addComment: (comment: IComment) => void,
-        removeComment: (id: string) => void,
+        addComment: (comment: IComment, taskId: string) => void,
+        removeComment: (id: string, taskId: string) => void,
         addRepliedCommentId: (id: string | repliedCommentIdentifiers) => void,
-        addRepliedCommentData: (comment: IComment) => void,
+        addRepliedCommentData: (comment: IComment, taskId: string) => void,
         removeRepliedCommentId: () => void,
-        removeRepliedComment: (originalId: string, replyId: string) => void
+        removeRepliedComment: (originalId: string, replyId: string, taskId: string) => void
     }
 }

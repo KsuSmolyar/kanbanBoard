@@ -6,19 +6,22 @@ import { Textarea } from "../../UI/Textarea"
 import { useCommentsStore } from "../../store/commentsStore/context";
 import { v4 as uuidv4 } from "uuid";
 import type { IComment } from "../../store/commentsStore/types"
+import { useAuthContext } from "../../store/authStore/context"
+import { useParams } from "react-router-dom"
 
 export const CommentForm = () => {
-    const [name, setName] = useState("");
+    const { state } = useAuthContext();
+    const [name, setName] = useState(state.user?.name || "");
     const [commentBody, setCommentBody] = useState("");
     const {store, actions} = useCommentsStore();
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const { taskId } = useParams<{ taskId: string }>();
+    const authorId = state.user?.id ?? "";
 
     const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setCommentBody(e.target.value);
-        console.log("handleCommentChange", e.target.value)
 
         if(e.target.value === "" && store?.repliedCommentId) {
-            console.log("e.target.value", e.target.value)
             actions.removeRepliedCommentId()
         }
     }
@@ -33,13 +36,14 @@ export const CommentForm = () => {
         const newComment: IComment = {
             id: uuidv4(),
             author: name,
-            body: commentBody
+            body: commentBody,
+            authorId
         }
 
-        if(store?.repliedCommentId) {
-            actions.addRepliedCommentData(newComment)
-        } else {
-            actions.addComment(newComment);
+        if(store?.repliedCommentId && taskId) {
+            actions.addRepliedCommentData(newComment, taskId)
+        } else if(taskId) {
+            actions.addComment(newComment, taskId);
         }
 
         setName("");
@@ -47,24 +51,47 @@ export const CommentForm = () => {
     }
 
     useEffect(() => {
-        if(store?.repliedCommentId) {
-            if(typeof store?.repliedCommentId === "string") {
-                const commentIndex = store.comments.findIndex((comment) => comment.id === store.repliedCommentId);
-                setCommentBody(`@${store.comments[commentIndex].author}` + " ");
-            } else if(store?.repliedCommentData) {
-                const {repliedId, originalId} = store.repliedCommentId;
-                const commentsArr = store?.repliedCommentData[originalId];
-                const commentIndex = commentsArr.findIndex((comment) => (
-                    comment.id === repliedId))
-                setCommentBody(`@${store.repliedCommentData[originalId][commentIndex].author}` + " ");
-            }
-           
+        if (!store || !taskId || !store.repliedCommentId) return;
 
-            if(textareaRef?.current) {
-                textareaRef.current.focus()
+        let authorName = "";
+
+        if (typeof store.repliedCommentId === "string") {
+            // Ответ на корневой комментарий
+            const comment = store.comments[taskId]?.find(c => c.id === store.repliedCommentId);
+            if (comment) {
+                authorName = comment.author;
+            }
+        } else {
+            // Ответ на вложенный комментарий
+            const { originalId, repliedId } = store.repliedCommentId;
+
+            const originalComment = store.comments[taskId]?.find(c => c.id === originalId);
+            if (originalComment?.repliedCommentData) {
+                const reply = originalComment.repliedCommentData.find(r => r.id === repliedId);
+                if (reply) {
+                    authorName = reply.author;
+                }
             }
         }
-    },[store?.repliedCommentId, store?.comments, store?.repliedCommentData])
+
+        if (authorName) {
+            setCommentBody(`@${authorName} `);
+        }
+
+        textareaRef?.current?.focus();
+    }, [store, taskId, store?.repliedCommentId]);
+
+    useEffect(() => {
+        const userName = state.user?.name;
+
+        if(userName) {
+            setName(userName)
+        }
+    }, [state.user?.name])
+
+    useEffect(() => {
+        textareaRef.current?.focus()
+    },[])
 
     return (
         <form 

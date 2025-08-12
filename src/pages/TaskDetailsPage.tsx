@@ -6,7 +6,7 @@ import { BtnBack } from "../UI/BtnBack";
 
 export const TaskDetailsPage = () => {
     return (
-        <div className="p-8 max-w-3xl mx-auto h-screen bg-gray-200">
+        <div className="p-8 max-w-7xl mx-auto h-screen bg-gray-200">
             <BtnBack />
             <TaskDetail />
             <CommentsStoreProvider>

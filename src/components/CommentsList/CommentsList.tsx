@@ -1,10 +1,12 @@
+import { useParams } from "react-router-dom";
 import { useCommentsStore } from "../../store/commentsStore/context"
 import { Comment } from "./Comment"
 
 export const CommentsList = () => {
     const {store} = useCommentsStore();
+    const { taskId } = useParams<{ taskId: string }>();
 
-    if(!store?.comments.length) {
+    if(taskId && (!store?.comments[taskId] || store.comments[taskId].length === 0)) {
         return <p>Пока нет комментариев</p>
     }
 
@@ -12,10 +14,10 @@ export const CommentsList = () => {
         <>
             <h2 className="mb-5">Комментарии</h2>
             <ul>
-                {!!store?.comments.length && store.comments.map((comment) => {
+                {taskId && (store?.comments[taskId] && store?.comments[taskId].length !== 0) && store.comments[taskId].map((comment) => {
                     return (
                         <li key={comment.id}>
-                            <Comment author={comment.author} body={comment.body} id={comment.id}/>
+                            <Comment {...comment}/>
                         </li>
                     )
                 })}

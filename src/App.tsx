@@ -8,11 +8,13 @@ import { AuthContextProvider } from './store/authStore/provider'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { Header } from './components/Header'
 
 function App() {
 
   return (
     <AuthContextProvider>
+      <Header/>
       <BoardProvider>
           <HashRouter>
             <Routes>

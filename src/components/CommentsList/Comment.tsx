@@ -1,10 +1,8 @@
-import { useCommentsStore } from "../../store/commentsStore/context";
 import type { IComment } from "../../store/commentsStore/types"
 import { CommentCard } from "./CommentCard";
 
-export const Comment = ({author, body, id}: IComment) => {
-    const {store} = useCommentsStore();
-
+export const Comment = ({author, body, id, repliedCommentData, authorId}: IComment) => {
+    
     return (
         <article 
             className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left mb-3"
@@ -14,9 +12,10 @@ export const Comment = ({author, body, id}: IComment) => {
                 commentBody={body}
                 className="relative mb-2 bg-gray-100 border border-gray-300 rounded-lg p-4 hover:border-blue-500 transition-colors duration-200 cursor-pointer"
                 originalId={id}
+                authorId={authorId}
             />
-            {store?.repliedCommentData?.[id] && <ul>
-                {store?.repliedCommentData?.[id].map((comment) => {
+            {!!repliedCommentData?.length && <ul>
+                {repliedCommentData.map((comment) => {
                     return (
                         <li key={comment.id} className="pl-5">
                             <CommentCard
@@ -25,6 +24,7 @@ export const Comment = ({author, body, id}: IComment) => {
                                 className="relative mb-1 bg-gray-200 border border-gray-400 rounded-lg p-3 text-sm hover:border-blue-500 transition-colors duration-200 cursor-pointer"
                                 originalId={id}
                                 replyId={comment.id}
+                                authorId={authorId}
                             />
                         </li>
                     )

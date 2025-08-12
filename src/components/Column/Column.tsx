@@ -26,7 +26,7 @@ export const Column = ({id, title, cards}:ColumnProps) => {
 
     return (
         <div className="bg-gray-100 rounded w-full">
-            <h2 className="sticky z-40 text-lg font-bold bg-gray-100 p-4 border-b-2" style={{ top: 78.5 }}>
+            <h2 className="sticky z-40 text-lg font-bold bg-gray-100 p-4 border-b-2" style={{ top: 122.5 }}>
                 {title} <span className="text-gray-500">({cards.length})</span>
             </h2>
             <div className="flex gap-2 p-4 justify-center">

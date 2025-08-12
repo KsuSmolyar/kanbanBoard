@@ -12,7 +12,7 @@ export const Toolbar = ({children}: IToolbarProps) => {
     const [showFilters, setShowFilters] = useLocalStorage("isFiltersOpen",false);
 
     return (
-        <div className="w-full sticky top-0 z-50 ">
+        <div className="w-full sticky z-50 " style={{ top: 52 }}>
             {/* Верхняя панель с кнопками */}
             <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
                 <Btn 

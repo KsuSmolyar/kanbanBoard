@@ -1,7 +1,6 @@
 import { useEffect, useReducer, type ReactNode } from "react";
 import { authTypes, type AuthAction, type AuthState } from "./types";
 import { AuthContext, initialState } from "./context";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { API_URL } from "../../constants";
 import { createAuthFetch } from "../../utils/createAuthFetch";
 
@@ -26,18 +25,21 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
     const [state, dispatch] = useReducer(authReducer,initialState);
 
     const logout = async () => {
-        await fetch(`${API_URL}/api/auth/logout`, { method: 'POST', credentials: 'include' });
-        dispatch({ type: authTypes.SET_USER, payload: null });
+        await fetch(`${API_URL}/api/auth/logout`, { 
+            method: 'POST', 
+            credentials: 'include' 
+        });
+        dispatch({ type: authTypes.LOGOUT });
     };
 
     const authFetch = createAuthFetch(logout);
 
     const login = async (email: string, password: string) => {
         const res = await authFetch(`${API_URL}/api/auth/login`, {
-        method: 'POST', 
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+            method: 'POST', 
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
         });
         if (!res.ok) {
             const error = await res.json();
@@ -50,10 +52,10 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
 
     const register = async (name: string, email: string, password: string) => {
         const res = await authFetch(`${API_URL}/api/auth/register`, {
-        method: 'POST', 
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+            method: 'POST', 
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
         });
         if (!res.ok) {
             const error = await res.json();
@@ -63,24 +65,44 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
         dispatch({ type: authTypes.SET_USER, payload: user });
     };
 
-    useEffect(() => {
-        (async () => {
-            try {
-                dispatch({ type: authTypes.SET_LOADING, payload: true });
-                const res = await authFetch(`${API_URL}/api/auth/me`, { credentials: 'include' });
-                if (res.ok) {
-                    const data = await res.json();
-                    dispatch({ type: authTypes.SET_USER, payload: data });
-                } else {
-                    dispatch({ type: authTypes.SET_USER, payload: null });
-                }
-            } catch {
-                dispatch({ type: authTypes.SET_USER, payload: null });
-            } finally {
-                dispatch({ type: authTypes.SET_LOADING, payload: false });
-            }
-        })();
-    },[])
+   useEffect(() => {
+    (async () => {
+      dispatch({ type: authTypes.SET_LOADING, payload: true });
+
+      try {
+        // 1. Пробуем обновить токен
+        const refreshRes = await authFetch(`${API_URL}/api/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+
+        console.log("refreshRes", refreshRes)
+
+        if (!refreshRes.ok) {
+          dispatch({ type: authTypes.LOGOUT });
+          return;
+        }
+
+        // 2. Получаем пользователя
+        const meRes = await authFetch(`${API_URL}/api/auth/me`, {
+          credentials: "include",
+        });
+
+        console.log("ME_RES", meRes)
+        if (!meRes.ok) {
+          dispatch({ type: authTypes.LOGOUT });
+          return;
+        }
+
+        const user = await meRes.json();
+        dispatch({ type: authTypes.SET_USER, payload: user });
+      } catch {
+        dispatch({ type: authTypes.LOGOUT });
+      } finally {
+        dispatch({ type: authTypes.SET_LOADING, payload: false });
+      }
+    })();
+  }, []);
 
     return (
         <AuthContext.Provider value={{state, dispatch, login, logout, register}}>
