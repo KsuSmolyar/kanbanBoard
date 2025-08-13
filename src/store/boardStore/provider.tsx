@@ -2,9 +2,10 @@ import { useEffect, useReducer, type ReactNode } from "react";
 import { boardAction, type BoardAction, type BoardState } from "./types";
 import { BoardContext, initialBoard } from "./context";
 import type { DropResult } from "@hello-pangea/dnd";
-import type { CardType, ColumnsId } from "../../types/board";
+import { type CardType, type ColumnsId } from "../../types/board";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
-import { BOARD_STATE_KEY } from "../../constants";
+import { API_URL, BOARD_STATE_KEY } from "../../constants";
+import { groupCardsByColumns } from "./groupCardsByColumns";
 
 const boardReducer = (state: BoardState, action: BoardAction) => {
     switch (action.type) {
@@ -42,15 +43,13 @@ const boardReducer = (state: BoardState, action: BoardAction) => {
             const { card, listId } = action.payload;
             const newState = state.map((col) => (
                     col.id === listId 
-                    ? {...col, cards: [...col.cards, {...card, tags: card.tags ?? []}]}
+                    ? {...col, cards: [...col.cards, {...card, tags: card.tags ?? [], status: listId}]}
                     : col
                 ))
-                console.log("newState", newState)
             return newState
         }
         case boardAction.EDIT_CARD: {
             const editedCard = action.payload;
-            console.log("editedCard", editedCard)
             const newState = state.map((col) => {
                 const newCards = col.cards.map(card => (
                     card.id === editedCard.id ? {...card, ...editedCard} : card)
@@ -79,7 +78,7 @@ const boardReducer = (state: BoardState, action: BoardAction) => {
                 if (col.id === destinationColumnId) {
                     return {
                         ...col,
-                        cards: [...col.cards, taskToMove]
+                        cards: [...col.cards, {...taskToMove, status: destinationColumnId}]
                     };
                 }
 
@@ -105,6 +104,9 @@ const boardReducer = (state: BoardState, action: BoardAction) => {
             newState.splice(destinationIndex, 0, movedColumn);
             return newState;
         }
+        case boardAction.INIT: {
+            return action.payload
+        }
         default:
             return state
     }
@@ -127,6 +129,27 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
             type: boardAction.MOVE_COLUMN, payload: {sourceIndex, destinationIndex}
         })
     }
+
+    useEffect(() => {
+        const loadTasks = async() => {
+            try{
+                const res = await fetch(`${API_URL}/api/tasks`, { credentials: "include" });
+                 if (!res.ok) throw new Error("Ошибка загрузки задач");
+
+                 const tasks:CardType[] = await res.json();
+
+                 // группируем по колонкам
+                const columns = groupCardsByColumns(tasks);
+
+                 dispatch({ type: boardAction.INIT, payload: columns });
+
+            } catch(err) {
+                console.error("Ошибка при загрузке задач: ",err)
+            }
+        }
+
+        loadTasks();
+    },[])
 
     useEffect(() => {
         setSavedState(state)

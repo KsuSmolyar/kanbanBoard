@@ -49,8 +49,6 @@ export const BoardWithFilters = () => {
 
     },[state, filters])
 
-    console.log("filteredColumns:::", filteredColumns)
-
     return (
         <div className="space-y-4">
             <Toolbar>

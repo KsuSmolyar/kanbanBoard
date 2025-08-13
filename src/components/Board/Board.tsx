@@ -17,7 +17,6 @@ export const Board = ({columns}: IBoardProps) => {
         }
 
         if (type === 'DEFAULT') {
-            console.log(type)
             actions.moveCard(result); 
         }
     };

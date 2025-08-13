@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useBoardContext } from "../../store/boardStore/context";
 import { columnIdType, type CardType} from "../../types/board";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { Btn } from "../../UI/Btn";
 import { taskPanelTypes, type TaskPanelProps } from "./types";
 import { Input } from "../../UI/Input";
@@ -9,6 +9,8 @@ import { Textarea } from "../../UI/Textarea";
 import { TagPicker } from "../TagPicker";
 import { findCard } from "./findCard";
 import type { TagKey } from "../../types/tags";
+import { addCardToServer } from "../../store/boardStore/addCardToServer";
+import { saveCardToServer } from "../../store/boardStore/saveCardToServer";
 
 export const TaskPanel = ({
     onSuccess, 
@@ -32,37 +34,80 @@ export const TaskPanel = ({
 
         if (!task.trim()) return;
 
-        let cardId = uuidv4();
+        let cardId;
 
         if (type === taskPanelTypes.edit && taskId) {
             cardId = taskId
         }
 
-        const newCard: CardType = {
-            id: cardId,
+        const newCard: Omit<CardType, "id"> = {
             content: task,
             description: description.trim(),
             tags,
             deadline: deadline ?? null,
+            status: columnIdType.todo,
+        }
+
+        const editedCard: CardType = {
+            id: cardId!,
+            content: task,
+            description: description.trim(),
+            tags,
+            deadline: deadline ?? null,
+            status: columnIdType.todo,
         }
 
         if(type === taskPanelTypes.add) {
-            actions.addCard(newCard, columnIdType.todo);
-            setTask("");
-            setDescription("");
-            setTags([]);
+            // actions.addCard(newCard, columnIdType.todo);
+            // setTask("");
+            // setDescription("");
+            // setTags([]);
+
+            addCardToServer(newCard).then((savedCard) => {
+                if (savedCard) {
+                    actions.addCard(savedCard, columnIdType.todo); // добавляем в локальный state
+                    setTask("");
+                    setDescription("");
+                    setTags([]);
+                    setDeadline(null);
+
+                    setSuccessMessage(true);
+        
+                    setTimeout(() => {
+                        setSuccessMessage(false);
+                        onSuccess?.()
+                    }, 2000)
+                } else {
+                    // можно показать ошибку пользователю
+                    alert("Не удалось сохранить карточку на сервере");
+                }
+            });
         }
 
         if (type === taskPanelTypes.edit && taskId) {
-            actions.editCard(newCard)
+             saveCardToServer(editedCard).then((savedCard) => {
+                if (savedCard) {
+                    actions.editCard(savedCard);
+                    setSuccessMessage(true);
+        
+                    setTimeout(() => {
+                        setSuccessMessage(false);
+                        onSuccess?.()
+                    }, 2000)
+                } else {
+                    // можно показать ошибку пользователю
+                    alert("Не удалось сохранить карточку на сервере");
+                }
+            });
+            // actions.editCard(newCard)
         }
         
-        setSuccessMessage(true);
+        // setSuccessMessage(true);
         
-        setTimeout(() => {
-            setSuccessMessage(false);
-            onSuccess?.()
-        }, 2000)
+        // setTimeout(() => {
+        //     setSuccessMessage(false);
+        //     onSuccess?.()
+        // }, 2000)
     }
 
     useEffect(() => {

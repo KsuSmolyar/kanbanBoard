@@ -9,7 +9,8 @@ export const boardAction = {
     REMOVE_CARD: "REMOVE_CARD",
     EDIT_CARD: "EDIT_CARD",
     CHANGE_STATUS: "CHANGE_STATUS",
-    MOVE_COLUMN: "MOVE_COLUMN"
+    MOVE_COLUMN: "MOVE_COLUMN",
+    INIT: "INIT"
 } as const;
 
 export type BoardAction = 
@@ -18,7 +19,8 @@ export type BoardAction =
     { type: typeof boardAction.EDIT_CARD, payload: CardType} |
     { type: typeof boardAction.CHANGE_STATUS, payload: changeStatusActionPayload } |
     { type: typeof boardAction.REMOVE_CARD, payload: string } |
-    { type: typeof boardAction.MOVE_COLUMN, payload: {sourceIndex: number, destinationIndex: number}};
+    { type: typeof boardAction.MOVE_COLUMN, payload: {sourceIndex: number, destinationIndex: number}} |
+    { type: typeof boardAction.INIT, payload: BoardState };
 
 type addActionPayload = {
     card: CardType,
