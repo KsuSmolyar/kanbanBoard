@@ -15,8 +15,7 @@ export const LoginPage = () => {
         setError("");
 
         try {
-            const loginRes = await login(email, password);
-            console.log("LoginRes from LoginPage", loginRes)
+            await login(email, password);
             navigate("/");
         } catch (err) {
             setError((err as Error).message || "Ошибка входа");

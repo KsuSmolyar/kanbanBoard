@@ -7,7 +7,7 @@ export const createAuthFetch = (logout: () => void) => {
       method: "POST",
       credentials: "include",
     });
-    console.log("res from refreshToken", res)
+  
     if (!res.ok) {
       throw new Error("Refresh token failed");
     }
@@ -19,7 +19,7 @@ export const createAuthFetch = (logout: () => void) => {
       ...init,
       credentials: "include", // всегда включаем куки
     });
-    console.log("res from return createAuthFetch", res)
+
     if (res.status === 401) {
       // Попытка обновить токен
       try {

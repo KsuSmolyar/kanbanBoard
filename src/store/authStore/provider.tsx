@@ -76,8 +76,6 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
           credentials: "include",
         });
 
-        console.log("refreshRes from provider", refreshRes)
-
         if (!refreshRes.ok) {
           dispatch({ type: authTypes.LOGOUT });
           return;
@@ -88,14 +86,12 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
           credentials: "include",
         });
 
-        console.log("ME_RES from provider", meRes)
         if (!meRes.ok) {
           dispatch({ type: authTypes.LOGOUT });
           return;
         }
 
         const user = await meRes.json();
-        console.log("USER FROM UseEffect", user)
         dispatch({ type: authTypes.SET_USER, payload: user });
       } catch {
         dispatch({ type: authTypes.LOGOUT });
