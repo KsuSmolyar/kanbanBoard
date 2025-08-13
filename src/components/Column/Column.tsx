@@ -17,7 +17,7 @@ export const Column = ({id, title, cards}:ColumnProps) => {
                 return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
                 });
             case 'alphabet':
-                return cardsCopy.sort((a, b) => a.content.localeCompare(b.content));
+                return cardsCopy.sort((a, b) => a.title.localeCompare(b.title));
             case 'created':
             default:
                 return cardsCopy; // оригинальный порядок — это порядок создания
@@ -61,7 +61,7 @@ export const Column = ({id, title, cards}:ColumnProps) => {
                                                 key={card.id} 
                                                 id={card.id} 
                                                 index={index} 
-                                                content={card.content}
+                                                title={card.title}
                                                 description={card.description}
                                                 tags={card.tags}
                                                 deadline={card.deadline}

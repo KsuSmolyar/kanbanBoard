@@ -41,7 +41,7 @@ export const TaskPanel = ({
         }
 
         const newCard: Omit<CardType, "id"> = {
-            content: task,
+            title: task,
             description: description.trim(),
             tags,
             deadline: deadline ?? null,
@@ -50,7 +50,7 @@ export const TaskPanel = ({
 
         const editedCard: CardType = {
             id: cardId!,
-            content: task,
+            title: task,
             description: description.trim(),
             tags,
             deadline: deadline ?? null,
@@ -115,7 +115,7 @@ export const TaskPanel = ({
             const found = findCard(state, taskId);
 
             if (found) {
-                setTask(found.content ?? "");
+                setTask(found.title ?? "");
                 setDescription(found.description ?? "");
                 setTags(found.tags ?? []);
                 setDeadline(found.deadline ?? "")

@@ -7,22 +7,22 @@ export const initialBoard: BoardState = [
     id: columnIdType.todo,
     title: "To Do",
     cards: [
-      // { id: "1", content: "Task 1", tags: [] },
-      // { id: "2", content: "Task 2", tags: [] },
+      // { id: "1", title: "Task 1", tags: [] },
+      // { id: "2", title: "Task 2", tags: [] },
     ],
   },
   {
     id: columnIdType.in_progress,
     title: "In Progress",
     cards: [
-      // { id: "3", content: "Task 3", tags: [] }
+      // { id: "3", title: "Task 3", tags: [] }
     ],
   },
   {
     id: columnIdType.done,
     title: "Done",
     cards: [
-      // { id: "4", content: "Task 4", tags: [] }
+      // { id: "4", title: "Task 4", tags: [] }
     ],
   },
 ];

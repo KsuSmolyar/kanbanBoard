@@ -84,7 +84,7 @@ export const TaskDetail = () => {
                         onSuccess={() => setIsEditVisible(false)}
                         successMsg="✅ Задача обновлена"
                         buttonLabel="Сохранить"
-                        taskTitle={task?.content}
+                        taskTitle={task?.title}
                         taskDescription={task?.description}
                         taskId={taskId}
                         type={taskPanelTypes.edit}
@@ -94,7 +94,7 @@ export const TaskDetail = () => {
             }
             <Dropdown options={options} onChange={(val) => handleChangeStatus(val)} value={selected} placeholder={"Статус"}/>
             <header className="flex justify-between items-start mb-4">
-                <h1 className="text-3xl font-bold text-gray-900">{task.content}</h1>
+                <h1 className="text-3xl font-bold text-gray-900">{task.title}</h1>
                 <div>
                     <Btn 
                         label={"✏️"}

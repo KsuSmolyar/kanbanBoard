@@ -7,7 +7,7 @@ import type { CardProps } from "./types";
 export const Card = ({ 
     id, 
     index, 
-    content, 
+    title, 
     description,
     deadline,
     tags = []
@@ -34,7 +34,7 @@ export const Card = ({
                     title="Подробнее"
                     onClick={handleClick}
                 >
-                    <div className="font-medium mb-2">{content}</div>
+                    <div className="font-medium mb-2">{title}</div>
 
                     {tags.length > 0 && (
                         <div className="flex gap-2 flex-wrap mb-2">

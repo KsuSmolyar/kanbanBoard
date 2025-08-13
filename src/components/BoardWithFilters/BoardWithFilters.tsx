@@ -24,7 +24,7 @@ export const BoardWithFilters = () => {
         return state.map((col) => {
             const filteredCards = col.cards.filter((card) => {
                 // text filter (search by title)
-                if (queryVal && !card.content.toLowerCase().includes(queryVal)) return false;
+                if (queryVal && !card.title.toLowerCase().includes(queryVal)) return false;
 
                 // tags: if filter specified, card must contain at least one selected tag
                 if (filters.tags && filters.tags.length > 0) {
