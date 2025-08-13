@@ -71,12 +71,12 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
 
       try {
         // 1. Пробуем обновить токен
-        const refreshRes = await authFetch(`${API_URL}/api/auth/refresh`, {
+        const refreshRes = await fetch(`${API_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
 
-        console.log("refreshRes", refreshRes)
+        console.log("refreshRes from provider", refreshRes)
 
         if (!refreshRes.ok) {
           dispatch({ type: authTypes.LOGOUT });
@@ -84,17 +84,18 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
         }
 
         // 2. Получаем пользователя
-        const meRes = await authFetch(`${API_URL}/api/auth/me`, {
+        const meRes = await fetch(`${API_URL}/api/auth/me`, {
           credentials: "include",
         });
 
-        console.log("ME_RES", meRes)
+        console.log("ME_RES from provider", meRes)
         if (!meRes.ok) {
           dispatch({ type: authTypes.LOGOUT });
           return;
         }
 
         const user = await meRes.json();
+        console.log("USER FROM UseEffect", user)
         dispatch({ type: authTypes.SET_USER, payload: user });
       } catch {
         dispatch({ type: authTypes.LOGOUT });
