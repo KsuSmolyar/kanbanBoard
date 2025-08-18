@@ -15,7 +15,6 @@ import { RemoveNotification } from "../../UI/RemoveNotification";
 import { useAuthContext } from "../../store/authStore/context";
 import { removeTask } from "../../utils/removeTask";
 import { API_URL } from "../../constants";
-// import { findCardById } from "../../utils/findCardById";
 
 const options: Option<ColumnsId>[] = [
   { label: '📃 todo', value: columnIdType.todo },
@@ -78,9 +77,6 @@ export const TaskDetail = () => {
             });
 
             if (!res.ok) throw new Error("Ошибка при обновлении задачи");
-            
-            const tasks: BoardState = await res.json();
-            actions.init(tasks)
         } catch (err) {
             console.error('Ошибка при обновлении задачи:', err);
             // Можно откатить UI изменения, если сервер упал
@@ -89,20 +85,11 @@ export const TaskDetail = () => {
 
     const handleRemoveTask = () => {
         setIsRemoveSuccess(true);
-        if(taskId) removeTask({taskId, dispatchAction: actions.init});
+        if(taskId) removeTask({taskId});
 
         setNotificationVisible(false)
             navigate(-1)
             setIsRemoveSuccess(false)
-
-        // setTimeout(() => {
-        //     if(taskId) {
-        //         actions.removeCard(taskId)
-        //     }
-        //     setNotificationVisible(false)
-        //     navigate(-1)
-        //     setIsRemoveSuccess(false)
-        // }, 2000)
     }
 
     if (!task) {

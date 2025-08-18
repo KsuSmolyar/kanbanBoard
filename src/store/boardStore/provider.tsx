@@ -6,7 +6,6 @@ import { type CardType, type ColumnsId } from "../../types/board";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { API_URL, BOARD_STATE_KEY } from "../../constants";
 import { groupCardsByColumns } from "./groupCardsByColumns";
-import { useAuthContext } from "../authStore/context";
 import { useSocket } from "../../hooks/useSocket";
 import { socketActionsType } from "../../types/socketMsgTypes";
 
@@ -120,7 +119,6 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
     const [savedState, setSavedState] = useLocalStorage(BOARD_STATE_KEY,initialBoard)
     const [state, dispatch] = useReducer(boardReducer, savedState);
     const shouldRun = useRef(false);
-    const { state: authState } = useAuthContext()
 
     const actions = {
         moveCard: (result: DropResult) => dispatch({type: boardAction.MOVE_CARD, payload: result}),
@@ -138,15 +136,18 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
 
     useSocket((msg) => {
         switch (msg.type) {
-        case socketActionsType.task_created:
-            actions.init(msg.payload);
-            break;
-        case socketActionsType.task_updated:
-            actions.init(msg.payload);
-            break;
-        case socketActionsType.task_deleted:
-            actions.init(msg.payload);
-            break;
+            case socketActionsType.task_created:
+                if(msg.payload.status) {
+                    actions.addCard(msg.payload, msg.payload.status)
+                }
+                break;
+            case socketActionsType.task_updated:
+                actions.editCard(msg.payload)
+                break;
+            case socketActionsType.task_deleted: {
+                actions.removeCard(msg.payload.id)
+                break;
+            } 
         }
   });
 
@@ -171,10 +172,12 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
         if(shouldRun.current) return;
         shouldRun.current = true;
 
-        if(authState.user?.name) {
-            loadTasks();
-        }
-    },[authState.user?.name])
+        // console.log("authState.user?.name", authState)
+        // if(authState.user?.name) {
+        //     loadTasks();
+        // }
+        loadTasks();
+    },[])
 
     useEffect(() => {
         setSavedState(state)

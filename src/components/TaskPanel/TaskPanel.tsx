@@ -26,7 +26,7 @@ export const TaskPanel = ({
     const [description, setDescription] = useState(taskDescription);
     const [successMessage, setSuccessMessage] = useState(false);
     const [tags, setTags] = useState<TagKey[]>( []);
-    const {state, actions} = useBoardContext();
+    const {state} = useBoardContext();
     const [deadline, setDeadline] = useState<string | null>(taskDeadline ?? null);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -60,7 +60,6 @@ export const TaskPanel = ({
         if(type === taskPanelTypes.add) {
             addCardToServer(newCard).then((savedCard) => {
                 if (savedCard) {
-                    actions.addCard(savedCard, columnIdType.todo); // добавляем в локальный state
                     setTask("");
                     setDescription("");
                     setTags([]);
@@ -82,7 +81,6 @@ export const TaskPanel = ({
         if (type === taskPanelTypes.edit && taskId) {
              saveCardToServer(editedCard).then((savedCard) => {
                 if (savedCard) {
-                    actions.editCard(savedCard);
                     setSuccessMessage(true);
         
                     setTimeout(() => {
