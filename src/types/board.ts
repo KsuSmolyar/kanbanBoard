@@ -6,7 +6,8 @@ export interface CardType {
   description?: string;
   tags?: TagKey[];
   deadline?: string | null; // ISO date string, e.g. "2025-08-06"
-  status?: ColumnsId
+  status?: ColumnsId,
+  user_id?: string
 }
 
 export interface ColumnType {

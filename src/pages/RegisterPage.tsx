@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthContext } from "../store/authStore/context";
 import { useState } from "react";
+// import { useBoardContext } from "../store/boardStore/context";
+// import { loadTasks } from "../utils/loadTasks";
 
 export const RegisterPage = () => {
     const navigate = useNavigate();
@@ -10,6 +12,7 @@ export const RegisterPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    // const {actions} = useBoardContext();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -17,6 +20,7 @@ export const RegisterPage = () => {
 
         try {
             await register(name, email, password);
+            // loadTasks(actions.init)
             navigate("/");
         } catch (err) {
             setError((err as Error).message || "Ошибка регистрации");

@@ -1,4 +1,4 @@
-import { useEffect, useReducer, type ReactNode } from "react";
+import { useEffect, useReducer, useRef, type ReactNode } from "react";
 import { boardAction, type BoardAction, type BoardState } from "./types";
 import { BoardContext, initialBoard } from "./context";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -6,6 +6,9 @@ import { type CardType, type ColumnsId } from "../../types/board";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { API_URL, BOARD_STATE_KEY } from "../../constants";
 import { groupCardsByColumns } from "./groupCardsByColumns";
+import { useAuthContext } from "../authStore/context";
+import { useSocket } from "../../hooks/useSocket";
+import { socketActionsType } from "../../types/socketMsgTypes";
 
 const boardReducer = (state: BoardState, action: BoardAction) => {
     switch (action.type) {
@@ -116,6 +119,8 @@ const boardReducer = (state: BoardState, action: BoardAction) => {
 export const BoardProvider = ({children}: {children: ReactNode}) => {
     const [savedState, setSavedState] = useLocalStorage(BOARD_STATE_KEY,initialBoard)
     const [state, dispatch] = useReducer(boardReducer, savedState);
+    const shouldRun = useRef(false);
+    const { state: authState } = useAuthContext()
 
     const actions = {
         moveCard: (result: DropResult) => dispatch({type: boardAction.MOVE_CARD, payload: result}),
@@ -127,8 +132,23 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
         }),
         moveColumn: (sourceIndex: number, destinationIndex: number) => dispatch({
             type: boardAction.MOVE_COLUMN, payload: {sourceIndex, destinationIndex}
-        })
+        }),
+        init: (columns: BoardState) => dispatch({ type: boardAction.INIT, payload: columns })
     }
+
+    useSocket((msg) => {
+        switch (msg.type) {
+        case socketActionsType.task_created:
+            actions.init(msg.payload);
+            break;
+        case socketActionsType.task_updated:
+            actions.init(msg.payload);
+            break;
+        case socketActionsType.task_deleted:
+            actions.init(msg.payload);
+            break;
+        }
+  });
 
     useEffect(() => {
         const loadTasks = async() => {
@@ -136,7 +156,7 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
                 const res = await fetch(`${API_URL}/api/tasks`, { credentials: "include" });
                  if (!res.ok) throw new Error("Ошибка загрузки задач");
 
-                 const tasks:CardType[] = await res.json();
+                 const tasks:BoardState = await res.json();
 
                  // группируем по колонкам
                 const columns = groupCardsByColumns(tasks);
@@ -148,8 +168,13 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
             }
         }
 
-        loadTasks();
-    },[])
+        if(shouldRun.current) return;
+        shouldRun.current = true;
+
+        if(authState.user?.name) {
+            loadTasks();
+        }
+    },[authState.user?.name])
 
     useEffect(() => {
         setSavedState(state)

@@ -12,6 +12,10 @@ import { Dropdown } from "../../UI/Dropdown";
 import type { BoardState } from "../../store/boardStore/types";
 import { formatDateReadable, isDueToday, isOverdue } from "../../utils/date";
 import { RemoveNotification } from "../../UI/RemoveNotification";
+import { useAuthContext } from "../../store/authStore/context";
+import { removeTask } from "../../utils/removeTask";
+import { API_URL } from "../../constants";
+// import { findCardById } from "../../utils/findCardById";
 
 const options: Option<ColumnsId>[] = [
   { label: '📃 todo', value: columnIdType.todo },
@@ -36,6 +40,9 @@ export const TaskDetail = () => {
     const [isNotificationVisible, setNotificationVisible] = useState(false);
     const [isRemoveSuccess, setIsRemoveSuccess] = useState(false);
     const navigate = useNavigate();
+    const { state: authState } = useAuthContext();
+    const currentUserId = authState.user?.id;
+    
     
     const [selected, setSelected] = useState<ColumnsId>(() => {
         const found = findColumnIdWithTask(state, taskId);
@@ -52,24 +59,50 @@ export const TaskDetail = () => {
         }
     }
 
-    const handleChangeStatus = (val: ColumnsId) => {
+    const taskUserId = task?.user_id;
+
+    const handleChangeStatus = async (val: ColumnsId) => {
         setSelected(val);
         if(taskId) {
             actions.changeStatus({destinationColumnId: val, sourceColumnId: selected, taskId})
         }
+        try {
+           const res = await fetch(`${API_URL}/api/tasks/${taskId}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                ...task,
+                status: val
+                })
+            });
+
+            if (!res.ok) throw new Error("Ошибка при обновлении задачи");
+            
+            const tasks: BoardState = await res.json();
+            actions.init(tasks)
+        } catch (err) {
+            console.error('Ошибка при обновлении задачи:', err);
+            // Можно откатить UI изменения, если сервер упал
+        }
     }
 
     const handleRemoveTask = () => {
-        setIsRemoveSuccess(true)
+        setIsRemoveSuccess(true);
+        if(taskId) removeTask({taskId, dispatchAction: actions.init});
 
-        setTimeout(() => {
-            if(taskId) {
-                actions.removeCard(taskId)
-            }
-            setNotificationVisible(false)
+        setNotificationVisible(false)
             navigate(-1)
             setIsRemoveSuccess(false)
-        }, 2000)
+
+        // setTimeout(() => {
+        //     if(taskId) {
+        //         actions.removeCard(taskId)
+        //     }
+        //     setNotificationVisible(false)
+        //     navigate(-1)
+        //     setIsRemoveSuccess(false)
+        // }, 2000)
     }
 
     if (!task) {
@@ -95,7 +128,7 @@ export const TaskDetail = () => {
             <Dropdown options={options} onChange={(val) => handleChangeStatus(val)} value={selected} placeholder={"Статус"}/>
             <header className="flex justify-between items-start mb-4">
                 <h1 className="text-3xl font-bold text-gray-900">{task.title}</h1>
-                <div>
+                {currentUserId && taskUserId && (currentUserId === taskUserId) && <div className="flex justify-between gap-1">
                     <Btn 
                         label={"✏️"}
                         title="Редактировать задачу"
@@ -108,7 +141,7 @@ export const TaskDetail = () => {
                         variant={btnVariants.smallPrimary}
                         onClick={() => setNotificationVisible(true)}
                     />
-                </div>
+                </div>}
                 
             </header>
             {task.deadline && (

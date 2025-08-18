@@ -6,5 +6,6 @@ export interface CardProps {
   title: string;
   description?: string;
   tags?: TagKey[],
-  deadline?: string | null
+  deadline?: string | null,
+  user_id?: string
 }

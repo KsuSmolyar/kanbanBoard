@@ -58,11 +58,6 @@ export const TaskPanel = ({
         }
 
         if(type === taskPanelTypes.add) {
-            // actions.addCard(newCard, columnIdType.todo);
-            // setTask("");
-            // setDescription("");
-            // setTags([]);
-
             addCardToServer(newCard).then((savedCard) => {
                 if (savedCard) {
                     actions.addCard(savedCard, columnIdType.todo); // добавляем в локальный state
@@ -99,15 +94,7 @@ export const TaskPanel = ({
                     alert("Не удалось сохранить карточку на сервере");
                 }
             });
-            // actions.editCard(newCard)
         }
-        
-        // setSuccessMessage(true);
-        
-        // setTimeout(() => {
-        //     setSuccessMessage(false);
-        //     onSuccess?.()
-        // }, 2000)
     }
 
     useEffect(() => {

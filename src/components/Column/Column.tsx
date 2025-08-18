@@ -65,6 +65,7 @@ export const Column = ({id, title, cards}:ColumnProps) => {
                                                 description={card.description}
                                                 tags={card.tags}
                                                 deadline={card.deadline}
+                                                user_id={card.user_id}
                                             />
                                         )
                                     })}

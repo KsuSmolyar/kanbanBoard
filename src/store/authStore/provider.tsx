@@ -1,4 +1,4 @@
-import { useEffect, useReducer, type ReactNode } from "react";
+import { useEffect, useReducer, useRef, type ReactNode } from "react";
 import { authTypes, type AuthAction, type AuthState } from "./types";
 import { AuthContext, initialState } from "./context";
 import { API_URL } from "../../constants";
@@ -23,6 +23,7 @@ const authReducer = (state: AuthState, action: AuthAction) => {
 
 export const AuthContextProvider = ({children}: {children: ReactNode}) => {
     const [state, dispatch] = useReducer(authReducer,initialState);
+    const shouldRun = useRef(false)
 
     const logout = async () => {
         await fetch(`${API_URL}/api/auth/logout`, { 
@@ -66,6 +67,9 @@ export const AuthContextProvider = ({children}: {children: ReactNode}) => {
     };
 
    useEffect(() => {
+      if(shouldRun.current) return;
+      shouldRun.current = true;
+
     (async () => {
       dispatch({ type: authTypes.SET_LOADING, payload: true });
 

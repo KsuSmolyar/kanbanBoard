@@ -1,12 +1,35 @@
 import { useParams } from "react-router-dom";
-import { useCommentsStore } from "../../store/commentsStore/context"
 import { Comment } from "./Comment"
+import { useEffect, useRef } from "react";
+import { API_URL } from "../../constants";
+import type { CommentItem } from "../../types/comments";
+import { useCommentsStore } from "../../store/commentsStore/context";
 
 export const CommentsList = () => {
-    const {store} = useCommentsStore();
+    const {comments, setComments} = useCommentsStore();
     const { taskId } = useParams<{ taskId: string }>();
+    const shouldRun = useRef(false);
 
-    if(taskId && (!store?.comments[taskId] || store.comments[taskId].length === 0)) {
+    useEffect(() => {
+        const loadComments = async() => {
+            try {
+                const res = await fetch(`${API_URL}/api/comments/${taskId}`, { credentials: "include" });
+                if(!res.ok) throw new Error("Ошибка загрузки комментариев");
+
+                const comments: CommentItem[] = await res.json();
+                setComments(comments);
+            } catch(err) {
+                console.error("Ошибка при получении списка комментариев: ", err)
+            }
+        }
+
+        if(shouldRun.current) return;
+        shouldRun.current = true;
+
+        loadComments()
+    },[])
+
+    if(taskId && !comments.length) {
         return <p>Пока нет комментариев</p>
     }
 
@@ -14,7 +37,7 @@ export const CommentsList = () => {
         <>
             <h2 className="mb-5">Комментарии</h2>
             <ul>
-                {taskId && (store?.comments[taskId] && store?.comments[taskId].length !== 0) && store.comments[taskId].map((comment) => {
+                {taskId && !!comments.length && comments.map((comment) => {
                     return (
                         <li key={comment.id}>
                             <Comment {...comment}/>

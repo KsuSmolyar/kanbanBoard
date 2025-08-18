@@ -1,8 +1,10 @@
 export interface ICommentCardProps {
-    originalId: string,
-    replyId?: string,
+    id: string,
     author: string,
     authorId: string,
     commentBody: string,
-    className: string
+    className: string,
+    createdAt: string,
+    repliedCommentAuthor?: string,
+    repliedCommentContent?: string
 }

@@ -41,6 +41,7 @@ export type BoardContextValue = {
         removeCard: (cardId: string) => void,
         editCard: (card: CardType) => void,
         changeStatus: (data: changeStatusActionPayload) => void,
-        moveColumn: (sourceIndex: number, destinationIndex: number) => void
+        moveColumn: (sourceIndex: number, destinationIndex: number) => void,
+        init: (columns: BoardState) => void
     },
 }

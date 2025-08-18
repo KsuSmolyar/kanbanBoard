@@ -2,20 +2,19 @@ import { createContext, useContext } from "react";
 import type { CommentsContextValue, ICommentStore } from "./types";
 
 export const initialCommentsStore: ICommentStore = {
-    comments: [],
-    repliedCommentId: null,
-    repliedCommentData: null
+    repliedCommentAuthor: null,
+    repliedCommentId: null
 }
 
 export const CommentsStoreContext = createContext<CommentsContextValue>({
     store: initialCommentsStore,
     actions: {
-        addComment: () => {},
-        removeComment: () => {},
-        addRepliedCommentId: () => {},
-        addRepliedCommentData: () => {},
+        addRepliedCommentAuthorAndId: () => {},
+        removeRepliedCommentAuthor: () => {},
         removeRepliedCommentId: () => {}
-    }
+    },
+    comments: [],
+    setComments: () => {}
 });
 
 
