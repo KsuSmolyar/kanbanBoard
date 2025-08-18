@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import { boardAction, type BoardAction, type BoardState } from "./types";
 import { BoardContext, initialBoard } from "./context";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -120,7 +120,7 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
     const [state, dispatch] = useReducer(boardReducer, savedState);
     const shouldRun = useRef(false);
 
-    const actions = {
+    const actions = useMemo(() => ({
         moveCard: (result: DropResult) => dispatch({type: boardAction.MOVE_CARD, payload: result}),
         addCard: (card: CardType, listId: ColumnsId) => dispatch({type: boardAction.ADD_CARD, payload: {card, listId}}),
         removeCard: (cardId: string) => dispatch({type: boardAction.REMOVE_CARD, payload: cardId}),
@@ -132,9 +132,9 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
             type: boardAction.MOVE_COLUMN, payload: {sourceIndex, destinationIndex}
         }),
         init: (columns: BoardState) => dispatch({ type: boardAction.INIT, payload: columns })
-    }
+    }),[])
 
-    useSocket((msg) => {
+    useSocket(useCallback((msg) => {
         switch (msg.type) {
             case socketActionsType.task_created:
                 if(msg.payload.status) {
@@ -149,7 +149,7 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
                 break;
             } 
         }
-  });
+  },[actions]));
 
     useEffect(() => {
         const loadTasks = async() => {

@@ -24,6 +24,10 @@ export function useSocket(onMessage: (msg: SocketMessage) => void) {
       console.log("WS закрыт");
     };
 
-    return () => socket.close();
+    return () => {
+        if(socket.OPEN) {
+            socket.close();
+        }
+    }
   }, [onMessage]);
 }

@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useReducer, useState, type ReactNode } from "react";
 import { commentsActions, type CommentsActionsType, type ICommentStore } from "./types";
 import { CommentsStoreContext, initialCommentsStore } from "./context";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -45,11 +45,11 @@ export const CommentsStoreProvider = ({children}: {children: ReactNode}) => {
         removeRepliedCommentId: () => dispatch({ type: commentsActions.removeRepliedCommentId})
     }
 
-    useSocket((msg) => {
+    useSocket(useCallback((msg) => {
         if (msg.type === socketActionsType.comment_created || msg.type === socketActionsType.comment_deleted) {
             setComments(msg.payload)
         }
-      });
+      },[]));
 
     useEffect(() => {
         setSavedStore(store)
