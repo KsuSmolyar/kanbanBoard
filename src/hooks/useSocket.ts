@@ -25,7 +25,7 @@ export function useSocket(onMessage: (msg: SocketMessage) => void) {
     };
 
     return () => {
-        if(socket.OPEN) {
+        if(socket.readyState === WebSocket.OPEN) {
             socket.close();
         }
     }
