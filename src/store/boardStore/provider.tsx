@@ -141,9 +141,11 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
                     actions.addCard(msg.payload, msg.payload.status)
                 }
                 break;
-            case socketActionsType.task_updated:
-                actions.editCard(msg.payload)
+            case socketActionsType.task_updated: {
+                const columns = groupCardsByColumns(msg.payload);
+                actions.init(columns)
                 break;
+            }  
             case socketActionsType.task_deleted: {
                 actions.removeCard(msg.payload.id)
                 break;
@@ -155,14 +157,13 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
         const loadTasks = async() => {
             try{
                 const res = await fetch(`${API_URL}/api/tasks`, { credentials: "include" });
-                 if (!res.ok) throw new Error("Ошибка загрузки задач");
+                if (!res.ok) throw new Error("Ошибка загрузки задач");
 
-                 const tasks:BoardState = await res.json();
+                const tasks:BoardState = await res.json();
 
-                 // группируем по колонкам
                 const columns = groupCardsByColumns(tasks);
 
-                 dispatch({ type: boardAction.INIT, payload: columns });
+                dispatch({ type: boardAction.INIT, payload: columns });
 
             } catch(err) {
                 console.error("Ошибка при загрузке задач: ",err)
@@ -172,10 +173,6 @@ export const BoardProvider = ({children}: {children: ReactNode}) => {
         if(shouldRun.current) return;
         shouldRun.current = true;
 
-        // console.log("authState.user?.name", authState)
-        // if(authState.user?.name) {
-        //     loadTasks();
-        // }
         loadTasks();
     },[])
 

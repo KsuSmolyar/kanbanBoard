@@ -24,7 +24,6 @@ export const addComment = async({
 
         const comments = await res.json();
         setComments(comments)
-        console.log("Сохраненный коммент:::", comments)
     } catch(err) {
         console.error("Ошибка при сохранении комментария", err)
     }
