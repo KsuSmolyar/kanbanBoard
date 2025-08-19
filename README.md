@@ -1,69 +1,36 @@
-# React + TypeScript + Vite
+# Kanban Board App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Полноценное канбан-приложение с аутентификацией и возможностью работы с задачами.  
+Бэкенд — на **Express + PostgreSQL**, фронтенд — на **React**. Деплой осуществляется через **Render**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Возможности
 
-## Expanding the ESLint configuration
+- Регистрация и авторизация пользователей
+- Хранение JWT в **httpOnly cookie** для безопасной авторизации
+- Создание, редактирование и удаление задач
+- Задачи доступны всем пользователям
+- Поддержка drag-and-drop с помощью [`@hello-pangea/dnd`](https://github.com/hello-pangea/dnd)
+- Реалтайм-обновления через **WebSocket**
+- Защита от XSS и CSRF (куки `httpOnly`, `secure`, `sameSite=none`)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Технологии
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **Frontend:** React, TypeScript, Vite, @hello-pangea/dnd  
+- **Backend:** Node.js, Express, PostgreSQL, JWT  
+- **Auth:** httpOnly cookies  
+- **WebSocket:** wss (через пакет `ws`)  
+- **Deployment:** Render  
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ⚠️ Важное ограничение
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Приложение **корректно работает только в Google Chrome**.  
+Причина: браузеры вроде **Яндекс, Safari, Firefox** по умолчанию блокируют *third-party cookies* (куки с другого домена).  
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- При деплое на **разные домены** (например, фронт — `myapp-frontend.onrender.com`, бэк — `kanban-auth-server.onrender.com`) куки могут не сохраняться.  
+- Chrome пока поддерживает такой сценарий, но другие браузеры блокируют куки, и авторизация не будет работать.  
